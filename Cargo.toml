@@ -1,0 +1,50 @@
+[package]
+name = "kira_cdh_compat_kmer_indexer"
+version = "0.2.0"
+edition = "2024"
+license = "GPL-2.0-only"
+authors = ["Andrei Riaskov <code@riaskov.com>"]
+description = "CD-HIT-compatible k-mer indexing (CD-HIT-NG) in Rust: fast, memory-efficient, mmap-ready."
+repository = "https://github.com/ARyaskov/kira_cdh_compat_kmer_indexer"
+documentation = "https://docs.rs/kira_cdh_compat_kmer_indexer"
+readme = "README.md"
+keywords = ["bioinformatics", "kmer", "cd-hit", "index", "fastq"]
+categories = ["science", "algorithms"]
+
+[lib]
+name = "kira_cdh_compat_kmer_indexer"
+path = "src/lib.rs"
+
+[[bin]]
+name = "kdx-build"
+path = "src/bin/kdx-build.rs"
+
+[features]
+default = ["mmap"]
+mmap = ["memmap2", "bytemuck"]
+async = ["tokio"]
+simd_x86 = [] # enables optional AVX2 mapping path (auto-fallback if not available)
+
+[dependencies]
+kira_cdh_compat_fastq_reader = { version = "0.1", features = ["async", "mmap"] }
+
+rayon = "1.10"
+bytemuck = { version = "1.16", features = ["derive"], optional = true }
+memmap2 = { version = "0.9", optional = true }
+byteorder = "1.5"
+thiserror = "1.0"
+smallvec = "1.13"
+clap = { version = "4.5", features = ["derive"] }
+tempfile = "3.13"
+anyhow = "1.0"
+
+tokio = { version = "1.40", features = ["rt-multi-thread", "macros", "sync"], optional = true }
+proptest = { version = "1.5", default-features = true }
+
+[dev-dependencies]
+criterion = "0.5"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+panic = "abort"
